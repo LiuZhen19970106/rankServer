@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>查询结果</title>
+</head>
+<body>
+<div id="table1">
+    <table border="1px" width="300px" cellspacing="0px">
+        <thead>
+        <tr>
+            <th>排名</th>
+            <th>客户端</th>
+            <th>分数</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for item in context.scores %}
+            <tr>
+                <td>{{ item.ranking }}</td>
+                <td>{{ item.client }}</td>
+                <td>{{ item.score }}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td>{{ context.userInfo.ranking }}</td>
+            <td>{{ context.userInfo.client_name }}</td>
+            <td>{{ context.userInfo.score }}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
