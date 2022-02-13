@@ -19,3 +19,4 @@
 - ![image](https://github.com/LiuZhen19970106/rankServer/blob/main/rankServer/WX20220214-034315%402x.png)
 - ![image](https://github.com/LiuZhen19970106/rankServer/blob/main/rankServer/WX20220214-034254%402x.png)
 
+### 测试链接在test.txt中

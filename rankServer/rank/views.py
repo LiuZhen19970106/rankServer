@@ -48,7 +48,6 @@ def search(request):
             return HttpResponse('client_name has no score in database')
         uscore = Score.objects.filter(client=client_name).first()
         userInfo = {'ranking': uscore.rank.rank, 'client_name': client_name, 'score': uscore.score}
-        # rank_list = [rank_obj for rank_obj in Rank.objects.all().order_by('rank')]
         context = {'scores': [{'ranking': scor.rank.rank, 'client': scor.client, 'score': scor.score} for scor in
                               Score.objects.all().order_by('-score')[start - 1:end]], 'userInfo': userInfo}
         if len(context['scores'])<start:
