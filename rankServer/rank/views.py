@@ -1,9 +1,12 @@
 from django.http import HttpResponse, JsonResponse
+from django.db.models.functions import Rank
+from django.db.models import Window, F
 from django.shortcuts import render
-from rank.models import Score, Rank
+from rank.models import Score
 
 # Create your views here.
 def upload(request):
+    
     client_name = request.GET.get('client_name', '')
     try:
         score = float(request.GET.get('score', ''))
@@ -19,13 +22,6 @@ def upload(request):
                 old_scor.save()
         else:
             Score.objects.create(client=client_name, score=score)
-        # 排名表数据更新
-        Rank.objects.all().delete()
-        score_li = [score_obj.id for score_obj in Score.objects.all().order_by('-score')]
-        n = 1
-        for i in score_li:
-            Rank.objects.create(c_id_id=i, rank=n)
-            n = n + 1
         return HttpResponse('upload success')
     elif not client_name:
         return HttpResponse('client_name is required')
@@ -46,10 +42,14 @@ def search(request):
             return HttpResponse('start and end must be between 1 and 1000000')
         if not Score.objects.filter(client=client_name).first():
             return HttpResponse('client_name has no score in database')
-        uscore = Score.objects.filter(client=client_name).first()
-        userInfo = {'ranking': uscore.rank.rank, 'client_name': client_name, 'score': uscore.score}
-        context = {'scores': [{'ranking': scor.rank.rank, 'client': scor.client, 'score': scor.score} for scor in
-                              Score.objects.all().order_by('-score')[start - 1:end]], 'userInfo': userInfo}
+        
+        # 获取排名
+        get_rank = Score.objects.all().annotate(score_rank=Window(expression=Rank(), order_by=F('score').desc())).values('score_rank', 'client', 'score')
+        user_rank = list(filter(lambda x: x['client'] == client_name, get_rank))[0]
+        userInfo = {'ranking': user_rank['score_rank'], 'client_name': client_name, 'score': user_rank['score']}
+        context = {'scores': [{'ranking': scor['score_rank'], 'client': scor['client'], 'score': scor['score']} for scor in
+                              get_rank[start - 1:end]], 'userInfo': userInfo}
+
         if len(context['scores'])<start:
             return HttpResponse('there is no rank in database')
         else:
@@ -58,6 +58,3 @@ def search(request):
         return HttpResponse('client_name is required')
     elif not start or not end:
         return HttpResponse('start and end are required')
-
-    
-  

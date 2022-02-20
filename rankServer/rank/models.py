@@ -17,8 +17,3 @@ class Score(models.Model):
         verbose_name = '分数登记表'
         verbose_name_plural = verbose_name
 
-
-# 名次表
-class Rank(models.Model):
-    c_id = models.OneToOneField(Score, on_delete=models.CASCADE, primary_key=True, )
-    rank = models.IntegerField(verbose_name='名次', validators=[MinValueValidator(1)])
