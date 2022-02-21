@@ -31,18 +31,20 @@ def upload(request):
 
 def search(request):
     client_name = request.GET.get('client_name', '')
+    start = request.GET.get('start', 1)
+    end = request.GET.get('end', Score.objects.all().count())
+
     try:
-        start = int(request.GET.get('start', ''))
-        end = int(request.GET.get('end', ''))
+        start = int(start)
+        end = int(end)
     except:
         return HttpResponse('start and end must be integer')
-    if client_name and start and end:
-
+    
+    if client_name:
         if start<1 or start>end or end>1000000:
             return HttpResponse('start and end must be between 1 and 1000000')
         if not Score.objects.filter(client=client_name).first():
             return HttpResponse('client_name has no score in database')
-        
         # 获取排名
         get_rank = Score.objects.all().annotate(score_rank=Window(expression=Rank(), order_by=F('score').desc())).values('score_rank', 'client', 'score')
         user_rank = list(filter(lambda x: x['client'] == client_name, get_rank))[0]
@@ -56,5 +58,4 @@ def search(request):
             return render(request, 'result.html', {'context': context})
     elif not client_name:
         return HttpResponse('client_name is required')
-    elif not start or not end:
-        return HttpResponse('start and end are required')
+
